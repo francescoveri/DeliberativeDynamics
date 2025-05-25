@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deliberation Dynamics – Mini‑Public Configurator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary:#2563eb; --bg:#f5f7fa; --card:#ffffff; --radius:18px; --shadow:0 4px 12px rgba(0,0,0,.08); }
+    *{box-sizing:border-box;font-family:'Inter',sans-serif;}
+    body{margin:0;padding:40px;background:var(--bg);color:#111;}
+    h1{margin:0 0 24px;font-size:2rem;font-weight:600;}
+    .card{background:var(--card);padding:24px;margin-bottom:24px;border-radius:var(--radius);box-shadow:var(--shadow);}
+    label{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+    select,button{padding:10px 14px;border-radius:10px;border:1px solid #cbd5e1;font-size:1rem;}
+    button{background:var(--primary);color:#fff;border:none;cursor:pointer;transition:background .2s ease;}
+    button:hover{background:#1d4ed8;}
+    #result{font-size:1.25rem;font-weight:600;margin-top:12px;}
+    #explanation{margin-top:8px;line-height:1.45;}
+  </style>
+</head>
+<body>
+  <h1>Deliberation Dynamics</h1>
+  <div class="card">
+    <h2>Configure Your Mini‑Public</h2>
+    <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+      <label>Stakeholders present?
+        <select id="stakeholder">
+          <option value="yes">Yes</option>
+          <option value="no" selected>No (lay citizens)</option>
+        </select>
+      </label>
+      <label>Issue complexity
+        <select id="complexity">
+          <option value="high">High</option>
+          <option value="low" selected>Low</option>
+        </select>
+      </label>
+      <label>Decision impact
+        <select id="decision">
+          <option value="high">High</option>
+          <option value="low" selected>Low</option>
+        </select>
+      </label>
+      <label>Group‑building activities
+        <select id="group">
+          <option value="yes" selected>Yes</option>
+          <option value="no">No</option>
+        </select>
+      </label>
+      <label>Deliberation length
+        <select id="length">
+          <option value="long" selected>Long (≥3 days)</option>
+          <option value="short">Short</option>
+        </select>
+      </label>
+      <label>Voting procedure
+        <select id="voting">
+          <option value="yes">Yes</option>
+          <option value="no" selected>No</option>
+        </select>
+      </label>
+    </div>
+    <button id="evaluate" style="margin-top:20px;">Evaluate Deliberative Reason</button>
+    <div id="result"></div>
+    <div id="explanation"></div>
+  </div>
+  <script>
+    const positivePaths = [
+      cfg => cfg.stakeholder==='no' && cfg.complexity==='low' && cfg.decision==='high',
+      cfg => cfg.stakeholder==='no' && cfg.group==='yes' && cfg.length==='long' && cfg.voting==='no' && cfg.decision==='low'
+    ];
+    const negativePaths = [
+      cfg => cfg.stakeholder==='yes' && cfg.decision==='high',
+      cfg => cfg.group==='no' && cfg.length==='short' && cfg.voting==='yes' && cfg.decision==='low'
+    ];
+    document.getElementById('evaluate').addEventListener('click',()=>{
+      const cfg = {
+        stakeholder:document.getElementById('stakeholder').value,
+        complexity:document.getElementById('complexity').value,
+        decision:document.getElementById('decision').value,
+        group:document.getElementById('group').value,
+        length:document.getElementById('length').value,
+        voting:document.getElementById('voting').value,
+      };
+      let outcome='neutral';
+      if(positivePaths.some(fn=>fn(cfg))) outcome='positive';
+      if(negativePaths.some(fn=>fn(cfg))) outcome='negative';
+
+      const resultEl=document.getElementById('result');
+      const explEl=document.getElementById('explanation');
+      if(outcome==='positive'){
+        resultEl.textContent='🥳 High Deliberative Reason Expected!';
+        explEl.textContent='This configuration matches one of the evidence‑based pathways that improve Deliberative Reason Index (DRI) scores.';
+      }else if(outcome==='negative'){
+        resultEl.textContent='⚠️ Low or Negative Deliberative Reason.';
+        explEl.textContent='Your setup aligns with a pathway that research associates with weaker deliberative reasoning.';
+      }else{
+        resultEl.textContent='➖ Neutral / Uncertain Effect.';
+        explEl.textContent='The evidence does not strongly indicate a positive or negative effect for this specific combination.';
+      }
+    });
+  </script>
+</body>
+</html>
